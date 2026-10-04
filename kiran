@@ -1,0 +1,628 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Cloud Disaster Recovery System</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#f4f7fb;color:#172033}
+button{cursor:pointer;border:0}
+.login{
+height:100vh;display:flex;align-items:center;justify-content:center;
+background:linear-gradient(135deg,#071b38,#1261a0,#00a6c7)
+}
+.login-box{
+width:390px;background:white;padding:35px;border-radius:18px;
+box-shadow:0 20px 50px #0005;text-align:center
+}
+.logo{font-size:55px;margin-bottom:10px}
+.login-box h1{color:#0865a8;margin-bottom:8px}
+.login-box p{color:#777;margin-bottom:25px}
+.input{width:100%;padding:14px;margin:8px 0;border:1px solid #ddd;border-radius:8px}
+.primary{
+background:#0879c9;color:white;padding:13px 20px;border-radius:8px;
+width:100%;margin-top:12px;font-weight:bold
+}
+.demo{background:#eef6ff;color:#0879c9}
+.app{display:none;min-height:100vh}
+.sidebar{
+position:fixed;width:240px;height:100vh;background:#071b38;color:white;padding:20px;
+}
+.brand{font-size:20px;font-weight:bold;margin-bottom:30px}
+.menu button{
+display:block;width:100%;padding:13px;margin:5px 0;text-align:left;
+background:transparent;color:#dce9f7;border-radius:8px;font-size:14px
+}
+.menu button:hover,.menu button.active{background:#0879c9;color:white}
+.main{margin-left:240px}
+.topbar{
+height:70px;background:white;display:flex;align-items:center;
+justify-content:space-between;padding:0 30px;border-bottom:1px solid #ddd
+}
+.search{padding:10px 15px;border:1px solid #ddd;border-radius:8px;width:260px}
+.content{padding:30px}
+.page{display:none}
+.page.active{display:block}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}
+.header h2{font-size:27px}
+.cards{
+display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:25px
+}
+.card{
+background:white;padding:20px;border-radius:14px;
+box-shadow:0 4px 15px #0000000b
+}
+.card h4{color:#777;font-size:14px;margin-bottom:12px}
+.number{font-size:28px;font-weight:bold;color:#0879c9}
+.status{margin-top:10px;font-size:13px;color:#16a05d}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.panel{
+background:white;padding:22px;border-radius:14px;margin-bottom:20px;
+box-shadow:0 4px 15px #0000000b
+}
+.panel h3{margin-bottom:18px}
+.chart{
+height:220px;display:flex;align-items:end;gap:12px;
+padding:15px;border-bottom:2px solid #ddd
+}
+.bar{width:30px;background:#0879c9;border-radius:5px 5px 0 0}
+table{width:100%;border-collapse:collapse}
+th,td{padding:13px;text-align:left;border-bottom:1px solid #eee}
+th{color:#667085;font-size:13px}
+.badge{padding:5px 9px;border-radius:15px;font-size:12px}
+.green{background:#dff8e9;color:#118344}
+.yellow{background:#fff3cd;color:#9a7200}
+.red{background:#ffe0e0;color:#c62828}
+.blue{background:#dceeff;color:#0879c9}
+.action{
+padding:8px 12px;background:#0879c9;color:white;border-radius:6px;
+font-size:12px
+}
+.danger{background:#d93636}
+.success{background:#159957}
+.progress{
+height:15px;background:#e5e7eb;border-radius:10px;overflow:hidden;margin:15px 0
+}
+.progress-bar{height:100%;width:0;background:#0879c9;transition:.3s}
+.server{
+border-left:5px solid #18a558;margin-bottom:15px
+}
+.server.critical{border-left-color:#d93636}
+.server.warning{border-left-color:#e5a500}
+.metric{margin:8px 0}
+.metric span{float:right}
+.small-progress{height:7px;background:#eee;border-radius:5px}
+.small-progress div{height:100%;background:#0879c9;border-radius:5px}
+.alert{
+display:flex;justify-content:space-between;align-items:center;
+padding:16px;margin-bottom:12px;border-radius:10px;background:#fff
+}
+.modal{
+display:none;position:fixed;inset:0;background:#0008;
+align-items:center;justify-content:center;z-index:10
+}
+.modal-box{
+background:white;width:450px;padding:30px;border-radius:15px
+}
+.modal-box h2{margin-bottom:15px}
+.close{float:right;font-size:22px;background:none}
+.activity{list-style:none}
+.activity li{padding:12px;border-bottom:1px solid #eee}
+.toggle{
+padding:8px 12px;background:#071b38;color:white;border-radius:7px
+}
+footer{text-align:center;color:#888;padding:25px}
+@media(max-width:900px){
+.sidebar{width:70px;padding:10px}
+.brand{font-size:0}
+.brand:first-letter{font-size:25px}
+.menu button{font-size:0;text-align:center}
+.menu button:first-letter{font-size:20px}
+.main{margin-left:70px}
+.cards{grid-template-columns:repeat(2,1fr)}
+.grid2{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+.cards{grid-template-columns:1fr}
+.topbar{padding:0 12px}
+.search{width:150px}
+.content{padding:15px}
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<section class="login" id="login">
+<div class="login-box">
+<div class="logo">☁️</div>
+<h1>Cloud Recovery</h1>
+<p>Cloud Disaster Recovery System</p>
+<input class="input" id="username" placeholder="Username">
+<input class="input" id="password" type="password" placeholder="Password">
+<button class="primary" onclick="login()">Login</button>
+<button class="primary demo" onclick="demoLogin()">Demo Login</button>
+</div>
+</section>
+
+<!-- APPLICATION -->
+<section class="app" id="app">
+
+<aside class="sidebar">
+<div class="brand">☁ CloudRecovery</div>
+
+<div class="menu">
+<button class="active" onclick="showPage('dashboard',this)">🏠 Dashboard</button>
+<button onclick="showPage('backup',this)">💾 Backups</button>
+<button onclick="showPage('recovery',this)">♻ Recovery</button>
+<button onclick="showPage('servers',this)">🖥 Servers</button>
+<button onclick="showPage('points',this)">📍 Recovery Points</button>
+<button onclick="showPage('alerts',this)">🚨 Alerts</button>
+<button onclick="showPage('reports',this)">📊 Reports</button>
+<button onclick="showPage('settings',this)">⚙ Settings</button>
+<button onclick="showPage('about',this)">ℹ About</button>
+<button onclick="logout()">🚪 Logout</button>
+</div>
+</aside>
+
+<main class="main">
+
+<header class="topbar">
+<input class="search" placeholder="Search..." onkeyup="searchTable(this.value)">
+<div>
+<span>☁ Cloud: <b style="color:#159957">Online</b></span>
+&nbsp;&nbsp;
+<button class="toggle" onclick="toggleMode()">☀</button>
+</div>
+</header>
+
+<div class="content">
+
+<!-- DASHBOARD -->
+<div class="page active" id="dashboard">
+<div class="header">
+<div>
+<h2>Dashboard</h2>
+<p>Cloud Disaster Recovery Overview</p>
+</div>
+<div>
+<button class="action" onclick="runBackup()">▶ Run Backup</button>
+<button class="action danger" onclick="simulateDisaster()">⚠ Simulate Disaster</button>
+</div>
+</div>
+
+<div class="cards">
+<div class="card">
+<h4>Protected Servers</h4>
+<div class="number" id="serverCount">24</div>
+<div class="status">● All monitored</div>
+</div>
+<div class="card">
+<h4>Backup Storage</h4>
+<div class="number">68.4 TB</div>
+<div class="status">● 72% available</div>
+</div>
+<div class="card">
+<h4>Backup Success</h4>
+<div class="number">98.7%</div>
+<div class="status">● Excellent</div>
+</div>
+<div class="card">
+<h4>Recovery Points</h4>
+<div class="number" id="pointCount">156</div>
+<div class="status">● Available</div>
+</div>
+</div>
+
+<div class="grid2">
+<div class="panel">
+<h3>Backup Activity</h3>
+<div class="chart">
+<div class="bar" style="height:50%"></div>
+<div class="bar" style="height:70%"></div>
+<div class="bar" style="height:45%"></div>
+<div class="bar" style="height:85%"></div>
+<div class="bar" style="height:65%"></div>
+<div class="bar" style="height:95%"></div>
+<div class="bar" style="height:75%"></div>
+</div>
+</div>
+
+<div class="panel">
+<h3>System Health</h3>
+<h2 style="color:#159957">● Excellent</h2>
+<br>
+<p>CPU Utilization</p>
+<div class="progress"><div class="progress-bar" style="width:42%"></div></div>
+<p>Storage Utilization</p>
+<div class="progress"><div class="progress-bar" style="width:68%"></div></div>
+<p>Network Utilization</p>
+<div class="progress"><div class="progress-bar" style="width:35%"></div></div>
+</div>
+</div>
+
+<div class="panel">
+<h3>Recent Activity</h3>
+<ul class="activity" id="activity">
+<li>✅ Database-01 backup completed successfully</li>
+<li>✅ WebServer-03 recovery point created</li>
+<li>⚠ Storage usage reached 68%</li>
+<li>✅ Cloud synchronization completed</li>
+</ul>
+</div>
+</div>
+
+<!-- BACKUP -->
+<div class="page" id="backup">
+<div class="header">
+<h2>Backup Management</h2>
+<button class="action" onclick="runBackup()">＋ Create Backup</button>
+</div>
+
+<div class="cards">
+<div class="card"><h4>Full Backups</h4><div class="number">48</div></div>
+<div class="card"><h4>Incremental</h4><div class="number">108</div></div>
+<div class="card"><h4>Successful</h4><div class="number">98.7%</div></div>
+<div class="card"><h4>Encrypted</h4><div class="number">100%</div></div>
+</div>
+
+<div class="panel">
+<h3>Backup History</h3>
+<table id="backupTable">
+<tr><th>Backup ID</th><th>Server</th><th>Type</th><th>Date</th><th>Size</th><th>Status</th><th>Action</th></tr>
+<tr><td>BK-1024</td><td>Database-01</td><td>Full</td><td>31 Jul 2026</td><td>420 GB</td><td><span class="badge green">Completed</span></td><td><button class="action">Restore</button></td></tr>
+<tr><td>BK-1023</td><td>WebServer-03</td><td>Incremental</td><td>31 Jul 2026</td><td>85 GB</td><td><span class="badge green">Completed</span></td><td><button class="action">Restore</button></td></tr>
+<tr><td>BK-1022</td><td>AppServer-02</td><td>Full</td><td>30 Jul 2026</td><td>310 GB</td><td><span class="badge green">Completed</span></td><td><button class="action">Restore</button></td></tr>
+</table>
+</div>
+</div>
+
+<!-- RECOVERY -->
+<div class="page" id="recovery">
+<div class="header">
+<h2>Disaster Recovery Center</h2>
+<button class="action success" onclick="startRecovery()">▶ Start Recovery</button>
+</div>
+
+<div class="cards">
+<div class="card"><h4>RPO</h4><div class="number">15 min</div></div>
+<div class="card"><h4>RTO</h4><div class="number">30 min</div></div>
+<div class="card"><h4>Readiness</h4><div class="number">99%</div></div>
+<div class="card"><h4>Last Test</h4><div class="number">2 days</div></div>
+</div>
+
+<div class="panel">
+<h3>Recovery Readiness</h3>
+<p>All critical workloads are protected and ready for recovery.</p>
+<div class="progress"><div class="progress-bar" style="width:99%"></div></div>
+<p><b>Recovery Status:</b> <span class="badge green">Ready</span></p>
+<br>
+<button class="action" onclick="startRecovery()">Test Recovery</button>
+</div>
+</div>
+
+<!-- SERVERS -->
+<div class="page" id="servers">
+<div class="header"><h2>Server Monitoring</h2></div>
+
+<div class="panel server">
+<h3>🖥 Database-01 <span class="badge green">Healthy</span></h3>
+<div class="metric">CPU <span>42%</span></div>
+<div class="small-progress"><div style="width:42%"></div></div>
+<div class="metric">Memory <span>61%</span></div>
+<div class="small-progress"><div style="width:61%"></div></div>
+<div class="metric">Storage <span>68%</span></div>
+<div class="small-progress"><div style="width:68%"></div></div>
+</div>
+
+<div class="panel server">
+<h3>🖥 WebServer-03 <span class="badge green">Healthy</span></h3>
+<div class="metric">CPU <span>34%</span></div>
+<div class="small-progress"><div style="width:34%"></div></div>
+<div class="metric">Memory <span>48%</span></div>
+<div class="small-progress"><div style="width:48%"></div></div>
+<div class="metric">Storage <span>55%</span></div>
+<div class="small-progress"><div style="width:55%"></div></div>
+</div>
+
+<div class="panel server">
+<h3>🖥 AppServer-02 <span class="badge yellow">Warning</span></h3>
+<div class="metric">CPU <span>76%</span></div>
+<div class="small-progress"><div style="width:76%"></div></div>
+<div class="metric">Memory <span>72%</span></div>
+<div class="small-progress"><div style="width:72%"></div></div>
+<div class="metric">Storage <span>80%</span></div>
+<div class="small-progress"><div style="width:80%"></div></div>
+</div>
+</div>
+
+<!-- RECOVERY POINTS -->
+<div class="page" id="points">
+<div class="header"><h2>Recovery Points</h2></div>
+<div class="panel">
+<table id="pointsTable">
+<tr><th>ID</th><th>Server</th><th>Date</th><th>Size</th><th>Encryption</th><th>Status</th><th>Action</th></tr>
+<tr><td>RP-156</td><td>Database-01</td><td>31 Jul 2026 20:00</td><td>420 GB</td><td>AES-256</td><td><span class="badge green">Available</span></td><td><button class="action" onclick="startRecovery()">Restore</button></td></tr>
+<tr><td>RP-155</td><td>WebServer-03</td><td>31 Jul 2026 19:45</td><td>85 GB</td><td>AES-256</td><td><span class="badge green">Available</span></td><td><button class="action">Restore</button></td></tr>
+<tr><td>RP-154</td><td>AppServer-02</td><td>31 Jul 2026 19:30</td><td>310 GB</td><td>AES-256</td><td><span class="badge green">Available</span></td><td><button class="action">Restore</button></td></tr>
+</table>
+</div>
+</div>
+
+<!-- ALERTS -->
+<div class="page" id="alerts">
+<div class="header"><h2>Alerts & Incidents</h2><button class="action danger" onclick="simulateDisaster()">＋ Simulate Incident</button></div>
+
+<div id="alertsList">
+<div class="alert">
+<div>⚠️ <b>Storage Usage Warning</b><br><small>AppServer-02 storage is at 80%</small></div>
+<span class="badge yellow">Warning</span>
+</div>
+<div class="alert">
+<div>ℹ️ <b>Backup Completed</b><br><small>Database-01 backup completed</small></div>
+<span class="badge blue">Info</span>
+</div>
+</div>
+</div>
+
+<!-- REPORTS -->
+<div class="page" id="reports">
+<div class="header"><h2>Reports & Analytics</h2><button class="action" onclick="alert('Report generated successfully!')">Generate Report</button></div>
+
+<div class="cards">
+<div class="card"><h4>Server Availability</h4><div class="number">99.98%</div></div>
+<div class="card"><h4>Recovery Success</h4><div class="number">99.4%</div></div>
+<div class="card"><h4>Monthly Backups</h4><div class="number">1,248</div></div>
+<div class="card"><h4>Incidents</h4><div class="number">7</div></div>
+</div>
+
+<div class="grid2">
+<div class="panel">
+<h3>Backup Success Rate</h3>
+<div class="chart">
+<div class="bar" style="height:90%"></div>
+<div class="bar" style="height:95%"></div>
+<div class="bar" style="height:93%"></div>
+<div class="bar" style="height:98%"></div>
+<div class="bar" style="height:97%"></div>
+<div class="bar" style="height:99%"></div>
+</div>
+</div>
+
+<div class="panel">
+<h3>Storage Usage</h3>
+<div class="chart">
+<div class="bar" style="height:45%"></div>
+<div class="bar" style="height:52%"></div>
+<div class="bar" style="height:60%"></div>
+<div class="bar" style="height:68%"></div>
+<div class="bar" style="height:72%"></div>
+<div class="bar" style="height:76%"></div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- SETTINGS -->
+<div class="page" id="settings">
+<div class="header"><h2>System Settings</h2></div>
+
+<div class="panel">
+<h3>Security</h3>
+<p>🔐 AES-256 Encryption <span class="badge green">Enabled</span></p><br>
+<p>🛡 Multi-Factor Authentication <span class="badge green">Enabled</span></p><br>
+<p>🔑 Role-Based Access Control <span class="badge green">Enabled</span></p><br>
+<p>📋 Audit Logging <span class="badge green">Enabled</span></p>
+</div>
+
+<div class="panel">
+<h3>Backup Settings</h3>
+<label>Backup Frequency</label>
+<select class="input">
+<option>Every 15 Minutes</option>
+<option>Every Hour</option>
+<option>Every 6 Hours</option>
+<option>Daily</option>
+</select>
+<label>Backup Type</label>
+<select class="input">
+<option>Incremental</option>
+<option>Full</option>
+<option>Differential</option>
+</select>
+<button class="primary">Save Settings</button>
+</div>
+</div>
+
+<!-- ABOUT -->
+<div class="page" id="about">
+<div class="header"><h2>About the System</h2></div>
+
+<div class="panel">
+<h3>What is Cloud Disaster Recovery?</h3>
+<p>
+Cloud Disaster Recovery is a cloud computing solution used to protect
+applications, servers and data from disasters such as hardware failure,
+cyber attacks, accidental deletion, network failure and natural disasters.
+</p>
+<br>
+
+<h3>How It Works</h3>
+<p>
+The system continuously backs up important data to secure cloud storage.
+When a disaster occurs, the recovery engine identifies the latest recovery
+point and restores the required services.
+</p>
+<br>
+
+<h3>System Architecture</h3>
+<p style="font-size:18px;text-align:center;line-height:2.5">
+👤 Users → 🌐 Web Application → ☁ Cloud Platform<br>
+↓<br>
+💾 Backup Manager → 🗄 Cloud Storage → ♻ Recovery Engine<br>
+↓<br>
+🖥 Restored Servers
+</p>
+<br>
+
+<h3>Key Benefits</h3>
+<p>✔ Automated backup</p>
+<p>✔ Fast disaster recovery</p>
+<p>✔ Secure cloud storage</p>
+<p>✔ Encryption</p>
+<p>✔ Reduced downtime</p>
+<p>✔ Continuous monitoring</p>
+</div>
+</div>
+
+<footer>
+© 2026 Cloud Disaster Recovery System | Cloud Computing Project
+</footer>
+
+</div>
+</main>
+</section>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+<div class="modal-box">
+<button class="close" onclick="closeModal()">×</button>
+<h2 id="modalTitle">Backup</h2>
+<p id="modalText">Processing...</p>
+<div class="progress">
+<div class="progress-bar" id="modalProgress"></div>
+</div>
+<p id="modalStatus">0%</p>
+</div>
+</div>
+
+<script>
+function login(){
+let u=document.getElementById("username").value;
+let p=document.getElementById("password").value;
+if(u && p) openApp();
+else alert("Please enter username and password.");
+}
+
+function demoLogin(){openApp()}
+
+function openApp(){
+document.getElementById("login").style.display="none";
+document.getElementById("app").style.display="block";
+}
+
+function logout(){
+document.getElementById("app").style.display="none";
+document.getElementById("login").style.display="flex";
+}
+
+function showPage(page,btn){
+document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+document.getElementById(page).classList.add("active");
+
+document.querySelectorAll(".menu button").forEach(b=>b.classList.remove("active"));
+if(btn) btn.classList.add("active");
+}
+
+function openModal(title,text){
+document.getElementById("modalTitle").innerText=title;
+document.getElementById("modalText").innerText=text;
+document.getElementById("modalProgress").style.width="0%";
+document.getElementById("modalStatus").innerText="0%";
+document.getElementById("modal").style.display="flex";
+}
+
+function closeModal(){
+document.getElementById("modal").style.display="none";
+}
+
+function runBackup(){
+openModal("Backup in Progress","Creating secure cloud backup...");
+
+let progress=0;
+let timer=setInterval(()=>{
+progress+=5;
+document.getElementById("modalProgress").style.width=progress+"%";
+document.getElementById("modalStatus").innerText=progress+"%";
+
+if(progress>=100){
+clearInterval(timer);
+document.getElementById("modalText").innerText="Backup completed successfully!";
+document.getElementById("modalStatus").innerText="✓ Completed";
+
+let activity=document.getElementById("activity");
+let li=document.createElement("li");
+li.innerText="✅ New cloud backup completed successfully";
+activity.prepend(li);
+
+document.getElementById("pointCount").innerText="157";
+}
+},150);
+}
+
+function startRecovery(){
+openModal("Disaster Recovery","Initializing recovery process...");
+
+let progress=0;
+let stages=[
+"Detecting system failure...",
+"Verifying cloud backup...",
+"Restoring data...",
+"Starting cloud services...",
+"Validating system...",
+"Recovery completed!"
+];
+
+let timer=setInterval(()=>{
+progress+=5;
+document.getElementById("modalProgress").style.width=progress+"%";
+document.getElementById("modalStatus").innerText=progress+"%";
+
+let index=Math.min(Math.floor(progress/20),5);
+document.getElementById("modalText").innerText=stages[index];
+
+if(progress>=100){
+clearInterval(timer);
+document.getElementById("modalText").innerText="✓ Disaster Recovery Completed Successfully";
+document.getElementById("modalStatus").innerText="System Restored";
+}
+},150);
+}
+
+function simulateDisaster(){
+showPage("alerts",document.querySelectorAll(".menu button")[5]);
+
+let alertBox=document.createElement("div");
+alertBox.className="alert";
+alertBox.innerHTML=
+"<div>🚨 <b>CRITICAL DISASTER DETECTED</b><br><small>Database-01 service failure detected. Recovery is recommended.</small></div><span class='badge red'>Critical</span>";
+
+document.getElementById("alertsList").prepend(alertBox);
+
+alert("⚠ DISASTER DETECTED!\nDatabase-01 has failed.\nStart disaster recovery immediately.");
+}
+
+function toggleMode(){
+document.body.style.background=
+document.body.style.background==="rgb(15, 23, 42)" ? "#f4f7fb" : "#0f172a";
+document.body.style.color=
+document.body.style.color==="white" ? "#172033" : "white";
+}
+
+function searchTable(value){
+value=value.toLowerCase();
+
+document.querySelectorAll("table tr").forEach((row,index)=>{
+if(index===0)return;
+row.style.display=row.innerText.toLowerCase().includes(value)?"":"none";
+});
+}
+</script>
+
+</body>
+</html>
+```
